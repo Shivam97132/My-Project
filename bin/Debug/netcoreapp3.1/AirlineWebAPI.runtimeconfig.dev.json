@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\malvi\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\malvi\\.nuget\\packages"
+    ]
+  }
+}
