@@ -9,6 +9,7 @@ using System.Linq;
 using System;
 using System.Collections;
 using AilrineWebAPI.Repository.RegisterUsersRepository;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AirlineWebAPI.Repository.RegisterUsersRepository
 {
@@ -42,7 +43,7 @@ namespace AirlineWebAPI.Repository.RegisterUsersRepository
             }
         }
 
-        public async Task<ActionResult<RegisterUser>> GetRegisterUserByPwd(string email, string password)
+        public async Task<RegisterUser> GetRegisterUserByPwd(string email, string password)
         {
             //var user = await _context.users.FirstOrDefaultAsync(x => x.Email == email && x.Password == password);
             //if (user == null)
@@ -60,9 +61,17 @@ namespace AirlineWebAPI.Repository.RegisterUsersRepository
             }
             return null;
         }
+        public async Task<bool> CheckEmailExists(string email)
+        {
+            // Use LINQ to query the database and check if an email exists
+            bool emailExists = await _context.users.AnyAsync(u => u.Email == email);
+
+            return emailExists;
+        }
 
         public async Task<ActionResult<RegisterUser>> PostRegisterUser(RegisterUser registerUser)
         {
+           
             _context.users.Add(registerUser);
             await _context.SaveChangesAsync();
             _logger.LogInformation("User created successfully.");

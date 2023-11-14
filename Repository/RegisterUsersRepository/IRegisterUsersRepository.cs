@@ -9,9 +9,10 @@ namespace AilrineWebAPI.Repository.RegisterUsersRepository
     {
         Task<ActionResult<IEnumerable<RegisterUser>>> Getusers();
         Task<ActionResult<RegisterUser>> GetRegisterUser(int id);
-        Task<ActionResult<RegisterUser>> GetRegisterUserByPwd(string email, string password);
+        Task<RegisterUser> GetRegisterUserByPwd(string email, string password);
         Task<ActionResult<RegisterUser>> PostRegisterUser(RegisterUser registerUser);
         Task<ActionResult<RegisterUser>> DeleteRegisterUser(int id);
+        Task<bool> CheckEmailExists(string email);
         bool RegisterUserExists(int id);
     }
 }

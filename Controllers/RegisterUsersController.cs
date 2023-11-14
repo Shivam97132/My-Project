@@ -9,6 +9,7 @@ using AirlineWebAPI.Models;
 using AilrineWebAPI.Repository.RegisterUsersRepository;
 using Microsoft.Extensions.Logging;
 using System.Collections;
+using Microsoft.Extensions.Configuration;
 
 namespace AirlineWebAPI.Controllers
 {
@@ -19,13 +20,15 @@ namespace AirlineWebAPI.Controllers
         private readonly AirlineDbContext _context;
         private readonly ILogger<RegisterUsersController> _logger;
         private readonly IRegisterUsersRepository _registerUsersRepository;
+        private readonly IConfiguration _configuration;
 
         public RegisterUsersController(AirlineDbContext context, ILogger<RegisterUsersController> logger,
-            IRegisterUsersRepository registerUsersRepository)
+            IRegisterUsersRepository registerUsersRepository,IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
             _registerUsersRepository = registerUsersRepository;
+            _configuration = configuration;
         }
 
         // GET: api/RegisterUsers
@@ -83,7 +86,9 @@ namespace AirlineWebAPI.Controllers
                 var authUser = await _registerUsersRepository.GetRegisterUserByPwd(email, password);
                 if (authUser != null)
                 {
-                    return Ok(authUser);
+                    var jwt = new Jwt(_configuration["jwt:Key"], _configuration["jwt:Duration"]);
+                   var token = jwt.GenerateToken(authUser);
+                    return Ok(new { Token = token, user = authUser });
                 }
                 else
                 {
@@ -187,7 +192,7 @@ namespace AirlineWebAPI.Controllers
                 }
             }
             _logger.LogInformation("User updated successfully.");
-            return NoContent();
+            return Ok(registerUser);
         }
 
         // POST: api/RegisterUsers
@@ -196,11 +201,13 @@ namespace AirlineWebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<RegisterUser>> PostRegisterUser(RegisterUser registerUser)
         {
-            //_context.users.Add(registerUser);
-            //await _context.SaveChangesAsync();
-            //_logger.LogInformation("User created successfully.");
+            bool emailExists = await _registerUsersRepository.CheckEmailExists(registerUser.Email);
 
-            //return CreatedAtAction("GetRegisterUser", new { id = registerUser.UserId }, registerUser);
+            if (emailExists)
+            {
+               
+                return BadRequest();
+            }
             await _registerUsersRepository.PostRegisterUser(registerUser);
              return CreatedAtAction("GetRegisterUser", new { id = registerUser.UserId }, registerUser);
             
